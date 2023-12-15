@@ -1,0 +1,53 @@
+---
+root: true
+plugins:
+  - jsdoc
+  - node
+  - promise
+  - sonarjs
+  - prettier
+  - unicorn
+  - "@typescript-eslint"
+extends:
+  - eslint:recommended
+  - plugin:node/recommended
+  - plugin:unicorn/recommended
+  - prettier
+  - plugin:@typescript-eslint/eslint-recommended
+  - plugin:@typescript-eslint/recommended
+env:
+  node: true
+rules:
+  '@typescript-eslint/no-namespace': off
+  '@typescript-eslint/no-empty-function': off
+  prettier/prettier: error
+  prefer-spread: error
+  node/no-unsupported-features/es-syntax: off
+  unicorn/text-encoding-identifier-case: off
+  unicorn/no-new-array: off
+  unicorn/filename-case: 
+    - error
+    - case: camelCase
+  unicorn/no-null: off
+  unicorn/no-reduce: off
+  unicorn/import-style: off
+  unicorn/numeric-separators-style: off
+  unicorn/prefer-module: off
+  unicorn/prevent-abbreviations: off
+  unicorn/prefer-spread: off
+  unicorn/no-array-callback-reference: off
+  unicorn/no-array-reduce: off
+  no-process-exit: off
+  unicorn/no-process-exit: off
+  unicorn/prefer-top-level-await: off
+parserOptions:
+  sourceType: module
+  ecmaVersion: 2020
+globals:
+  BigInt: true
+settings:
+  node:
+    tryExtensions: [.js, .ts]
+  import/parsers:
+    "@typescript-eslint/parser": [.ts, .tsx]
+  import/resolver: "typescript"
