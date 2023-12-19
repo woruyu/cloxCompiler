@@ -1,17 +1,44 @@
 export enum TokenName {
   // Single-character tokens.
-  LEFT_PAREN,RIGHT_PAREN,LEFT_BRACE,RIGHT_BRACE,COMMA, DOT,
-  MINUS,PLUS, SEMICOLON, SLASH, STAR,
+  LEFT_PAREN,
+  RIGHT_PAREN,
+  LEFT_BRACE,
+  RIGHT_BRACE,
+  COMMA,
+  DOT,
+  MINUS,
+  PLUS,
+  SEMICOLON,
+  SLASH,
+  STAR,
 
   // One or two character tokens.
-  BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
-
-  // Literals.
-  IDENTIFIER, STRING, NUMBER,
+  BANG,
+  BANG_EQUAL,
+  EQUAL,
+  EQUAL_EQUAL,
+  GREATER,
+  GREATER_EQUAL,
+  LESS,
+  LESS_EQUAL,
 
   // Keywords.
-  AND, CLASS, ELSE, FALSE, FUNCTION, FOR, IF, NIL, OR,
-  PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
+  AND,
+  CLASS,
+  ELSE,
+  FALSE,
+  FUNCTION,
+  FOR,
+  IF,
+  NIL,
+  OR,
+  PRINT,
+  RETURN,
+  SUPER,
+  THIS,
+  TRUE,
+  VAR,
+  WHILE,
 
   //value
   NumericLiteral,
@@ -20,7 +47,7 @@ export enum TokenName {
 
   NOTE,
   Unknown,
-  EOF
+  EOF,
 }
 export type Lexer = {
   scan(): void;
@@ -31,6 +58,7 @@ export type Lexer = {
 
 export interface Token {
   pos: { line: number; column: number };
+  tokenName: string;
+  type: TokenName;
   text?: string;
-  tokenName: string
 }
