@@ -4,7 +4,7 @@ export abstract class Expr {
   abstract accept<R>(visitor: Visitor<R>): R;
 }
 
-interface Visitor<R> {
+export interface Visitor<R> {
   visitAssignExpr(expr: Assign): R;
   visitBinaryExpr(expr: Binary): R;
   visitCallExpr(expr: Call): R;

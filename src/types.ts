@@ -62,3 +62,5 @@ export interface Token {
   type: TokenName;
   text?: string;
 }
+
+export type Value = number | string | boolean | null;
