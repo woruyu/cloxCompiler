@@ -1,103 +1,46 @@
-{
-  "left": {
-    "left": {
+[
+  {
+    "expression": {
       "left": {
         "left": {
-          "value": 1
-        },
-        "operator": {
-          "pos": {
-            "line": 1,
-            "column": 2
-          },
-          "tokenName": "PLUS",
-          "type": 7
-        },
-        "right": {
           "left": {
-            "value": 2
+            "value": null
           },
           "operator": {
             "pos": {
-              "line": 1,
-              "column": 4
+              "line": 3,
+              "column": 13
             },
-            "tokenName": "STAR",
-            "type": 10
-          },
-          "right": {
-            "value": 3
-          }
-        }
-      },
-      "operator": {
-        "pos": {
-          "line": 1,
-          "column": 6
-        },
-        "tokenName": "PLUS",
-        "type": 7
-      },
-      "right": {
-        "expression": {
-          "left": {
-            "value": 4
-          },
-          "operator": {
-            "pos": {
-              "line": 1,
-              "column": 9
-            },
-            "tokenName": "MINUS",
-            "type": 6
+            "tokenName": "AND",
+            "type": 19
           },
           "right": {
             "value": 5
           }
+        },
+        "operator": {
+          "pos": {
+            "line": 3,
+            "column": 18
+          },
+          "tokenName": "OR",
+          "type": 27
+        },
+        "right": {
+          "value": "\"no\""
         }
-      }
-    },
-    "operator": {
-      "pos": {
-        "line": 1,
-        "column": 12
       },
-      "tokenName": "PLUS",
-      "type": 7
-    },
-    "right": {
       "operator": {
         "pos": {
-          "line": 1,
-          "column": 13
+          "line": 3,
+          "column": 26
         },
-        "tokenName": "BANG",
-        "type": 11
+        "tokenName": "OR",
+        "type": 27
       },
       "right": {
-        "value": 123
+        "value": null
       }
     }
-  },
-  "operator": {
-    "pos": {
-      "line": 1,
-      "column": 17
-    },
-    "tokenName": "PLUS",
-    "type": 7
-  },
-  "right": {
-    "operator": {
-      "pos": {
-        "line": 1,
-        "column": 18
-      },
-      "tokenName": "MINUS",
-      "type": 6
-    },
-    "right": {
-      "value": 53
-    }
   }
-}
+]

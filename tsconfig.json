@@ -98,6 +98,5 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": false /* Skip type checking all .d.ts files. */
   },
-  "include": ["src", "utils/interfaceInfo.ts", "test/1234.ts"],
-  "exclude": ["artifactory", "example"]
+  "include": ["src"],
 }

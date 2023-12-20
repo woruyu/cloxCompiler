@@ -1,4 +1,4 @@
-import { Token } from "./types";
+import { Token } from "../types";
 
 export abstract class Expr {
   abstract accept<R>(visitor: Visitor<R>): R;
@@ -11,12 +11,12 @@ export interface Visitor<R> {
   visitGetExpr(expr: Get): R;
   visitGroupingExpr(expr: Grouping): R;
   visitLiteralExpr(expr: Literal): R;
-  // visitLogicalExpr(expr: Logical): R;
+  visitLogicalExpr(expr: Logical): R;
   // visitSetExpr(expr: Set): R;
   // visitSuperExpr(expr: Super): R;
   // visitThisExpr(expr: This): R;
   visitUnaryExpr(expr: Unary): R;
-  // visitVariableExpr(expr: Variable): R;
+  visitVariableExpr(expr: Variable): R;
 }
 
 export class Assign extends Expr {
@@ -111,3 +111,30 @@ export class Unary extends Expr {
     return visitor.visitUnaryExpr(this);
   }
 }
+
+export class Variable extends Expr {
+  constructor(
+    public name: Token,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: Visitor<R>): R {
+    return visitor.visitVariableExpr(this);
+  }
+}
+
+export class Logical extends Expr {
+  constructor(
+    public left: Expr,
+    public operator: Token,
+    public right: Expr,
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: Visitor<R>): R {
+    return visitor.visitLogicalExpr(this);
+  }
+}
+

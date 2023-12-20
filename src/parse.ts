@@ -1,15 +1,43 @@
 import assert from "node:assert";
-import { Binary, Expr, Grouping, Literal, Unary } from "./expr";
+import { Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable } from "./element/expr";
 import { lexAll } from "./lex";
 import { Token, TokenName } from "./types";
 import { exit } from "node:process";
+import { Block, Expression, If, Print, Stmt, Var } from "./element/stament";
 
 export class Parser {
   private tokens = new Array<Token>();
+  private statements = new Array<Stmt>();
   private current = 0;
 
   parse(content: string) {
     this.tokens = lexAll(content);
+    this.current = 0;
+    // console.log(this.tokens);
+
+    try {
+      while (!this.isAtEnd()) {
+        if(this.matchToken(TokenName.NOTE)) continue;
+        this.statements.push(this.statement());
+      }
+    } catch (error) {
+      if (error instanceof ParseError) {
+        console.log(
+          `in line ${error.token.pos.line}, column ${error.token.pos.column}, ${error.token.tokenName}---${error.msg}`
+        );
+        console.log(error.stack);
+      } else {
+        console.log(error);
+      }
+      exit();
+    }
+
+    return this.statements;
+  }
+
+  parseExpression(content: string) {
+    this.tokens = lexAll(content);
+    this.current = 0;
     console.log(this.tokens);
 
     try {
@@ -25,6 +53,61 @@ export class Parser {
       }
       exit();
     }
+  }
+
+  statement(): Stmt{
+    if (this.matchToken(TokenName.PRINT)) return this.printStatement();
+    if (this.matchToken(TokenName.VAR)) return this.varStatement();
+    if (this.matchToken(TokenName.LEFT_BRACE)) return new Block(this.blockStatements());
+    if(this.matchToken(TokenName.IF)) return this.ifStatement();
+    return this.expressionStatement();
+  }
+
+  ifStatement(){
+    this.consume(TokenName.LEFT_PAREN, "Expect '(' after 'if'.");
+    const condition = this.expression();
+    this.consume(TokenName.RIGHT_PAREN, "Expect ')' after if condition."); 
+
+    const thenBranch = this.statement();
+    let elseBranch = null;
+    if (this.matchToken(TokenName.ELSE)) {
+      elseBranch = this.statement();
+    }
+
+    return new If(condition, thenBranch, elseBranch);
+  }
+
+  blockStatements(){
+    const statements = new Array<Stmt>();
+
+    while (!this.check(TokenName.RIGHT_BRACE) && !this.isAtEnd()) {
+      statements.push(this.statement());
+    }
+    this.matchToken(TokenName.RIGHT_BRACE);
+    return statements;
+  }
+
+  varStatement() {
+    const varName = this.consume(TokenName.Identifier, "expect var name");
+    let initialize: Expr | null = null;
+    if (this.matchToken(TokenName.EQUAL)) {
+      initialize = this.expression();
+    }
+    this.consume(TokenName.SEMICOLON, "Expect ';' after variable declaration");
+
+    return new Var(varName, initialize);
+  }
+
+  printStatement() {
+    const value = this.expression();
+    this.consume(TokenName.SEMICOLON, "Expect ';' after print expression.");
+    return new Print(value);
+  }
+
+  expressionStatement() {
+    const expr = this.expression();
+    this.consume(TokenName.SEMICOLON, "Expect ';' after expression.");
+    return new Expression(expr);
   }
 
   matchToken(...types: TokenName[]): boolean {
@@ -65,7 +148,41 @@ export class Parser {
   }
 
   expression(): Expr {
-    return this.equality();
+    const leftExpr = this.or();
+    if(this.matchToken(TokenName.EQUAL)){
+      const equals = this.previous();
+      const value = this.expression();
+
+      if (leftExpr instanceof Variable) {
+        return new Assign(leftExpr.name, value);
+      }
+    }
+
+    return leftExpr;
+  }
+
+  private or() {
+    let expr = this.and();
+
+    while (this.matchToken(TokenName.OR)) {
+      const operator = this.previous();
+      const  right = this.and();
+      expr = new Logical(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  private and() {
+    let expr = this.equality();
+
+    while (this.matchToken(TokenName.AND)) {
+      const operator = this.previous();
+      const right = this.equality();
+      expr = new Logical(expr, operator, right);
+    }
+
+    return expr;
   }
 
   equality(): Expr {
@@ -134,6 +251,10 @@ export class Parser {
       return token.type === TokenName.NumericLiteral
         ? new Literal(Number.parseInt(token.text))
         : new Literal(token.text);
+    }
+
+    if(this.matchToken(TokenName.Identifier)){
+      return new Variable(this.previous());
     }
 
     if (this.matchToken(TokenName.LEFT_PAREN)) {
