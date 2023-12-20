@@ -15,6 +15,7 @@ export interface stmVisitor<R> {
   visitReturnStmt(stmt: Return): R;
   visitVarStmt(stmt: Var): R;
   visitWhileStmt(stmt: While): R;
+  visitForStmt(stmt: For): R;
 }
 
 export class Block extends Stmt {
@@ -127,5 +128,20 @@ export class While extends Stmt {
 
   accept<R>(visitor: stmVisitor<R>): R {
     return visitor.visitWhileStmt(this);
+  }
+}
+
+export class For extends Stmt {
+  constructor(
+    public initializer: Expr | Stmt | null,
+    public condition: Expr | null,
+    public body: Stmt,
+    public increment:Expr | null
+  ) {
+    super();
+  }
+
+  accept<R>(visitor: stmVisitor<R>): R {
+    return visitor.visitForStmt(this);
   }
 }

@@ -1,10 +1,24 @@
 import assert from "assert";
 import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Unary, Variable, Visitor } from "../element/expr";
 import { TokenName, Value } from "../types";
-import { Block, Class, Expression, Function, If, Print, Return, Stmt, Var, While, stmVisitor } from "../element/stament";
+import { Block, Class, Expression, For, Function, If, Print, Return, Stmt, Var, While, stmVisitor } from "../element/stament";
 import { Environment } from "./environment";
 
 export class Interpreter implements Visitor<Value>,stmVisitor<void> {
+  visitForStmt(stmt: For): void {
+    if(stmt.initializer instanceof Stmt){
+      stmt.initializer.accept(this);
+    }else{
+      stmt.initializer?.accept(this);
+    }
+
+    const condition = stmt.condition?? new Literal(true);
+    while(condition.accept(this)){
+      stmt.body.accept(this);
+      stmt.increment?.accept(this);
+    }
+    
+  }
   visitLogicalExpr(expr: Logical): Value {
     const left = expr.left.accept(this);
     if(expr.operator.type === TokenName.AND){
@@ -53,7 +67,9 @@ export class Interpreter implements Visitor<Value>,stmVisitor<void> {
     this.environment.define(stmt.name.text!, value);
   }
   visitWhileStmt(stmt: While): void {
-    throw new Error("Method not implemented.");
+    while(stmt.condition.accept(this)){
+      stmt.body.accept(this);
+    }
   }
   visitVariableExpr(expr: Variable): Value {
     return this.environment.get(expr.name);

@@ -3,7 +3,7 @@ import { Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable } fro
 import { lexAll } from "./lex";
 import { Token, TokenName } from "./types";
 import { exit } from "node:process";
-import { Block, Expression, If, Print, Stmt, Var } from "./element/stament";
+import { Block, Expression, For, If, Print, Stmt, Var, While } from "./element/stament";
 
 export class Parser {
   private tokens = new Array<Token>();
@@ -60,8 +60,47 @@ export class Parser {
     if (this.matchToken(TokenName.VAR)) return this.varStatement();
     if (this.matchToken(TokenName.LEFT_BRACE)) return new Block(this.blockStatements());
     if(this.matchToken(TokenName.IF)) return this.ifStatement();
+    if(this.matchToken(TokenName.WHILE)) return this.whileStatement();
+    if(this.matchToken(TokenName.FOR)) return this.forStatement();
     return this.expressionStatement();
   }
+
+  forStatement(){
+    this.consume(TokenName.LEFT_PAREN,"Expect '(' after for");
+    let initializer;
+    if(this.matchToken(TokenName.SEMICOLON)){
+      initializer = null;
+    }else if(this.matchToken(TokenName.VAR)){
+      initializer = this.varStatement();
+    }else{
+      initializer = this.expressionStatement();
+    }
+
+    let condition = null;
+    if(!this.check(TokenName.SEMICOLON)){
+      condition = this.expression();
+    }
+    this.consume(TokenName.SEMICOLON, "Expect ';' after for(;condition;) condition.");
+
+    let increment = null;
+    if(!this.check(TokenName.RIGHT_PAREN)){
+      increment = this.expression();
+    }
+    this.consume(TokenName.RIGHT_PAREN,"Expect ')' after for end")
+
+    const body = this.statement();
+    return new For(initializer,condition,body,increment);
+  }
+
+  whileStatement(){
+    this.consume(TokenName.LEFT_PAREN,"Expect '(' after while");
+    const condition = this.expression();
+    this.consume(TokenName.RIGHT_PAREN,"Expect ')' after while condition.")
+
+    const body = this.statement();
+    return new While(condition,body);
+  }
+
 
   ifStatement(){
     this.consume(TokenName.LEFT_PAREN, "Expect '(' after 'if'.");
