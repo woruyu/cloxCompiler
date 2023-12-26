@@ -1,3 +1,5 @@
+import { LoxCallable, LoxFunction } from "./element/LoxFunction";
+
 export enum TokenName {
   // Single-character tokens.
   LEFT_PAREN,
@@ -63,4 +65,8 @@ export interface Token {
   text?: string;
 }
 
-export type Value = number | string | boolean | null;
+export type Value = number | string | boolean | null | LoxCallable;
+
+export class ReturnException {
+  constructor(public value: Value) {}
+}

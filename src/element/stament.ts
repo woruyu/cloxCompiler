@@ -93,10 +93,7 @@ export class Print extends Stmt {
 }
 
 export class Return extends Stmt {
-  constructor(
-    public keyword: Token,
-    public value: Expr | null
-  ) {
+  constructor(public value: Expr | null) {
     super();
   }
 
@@ -136,7 +133,7 @@ export class For extends Stmt {
     public initializer: Expr | Stmt | null,
     public condition: Expr | null,
     public body: Stmt,
-    public increment:Expr | null
+    public increment: Expr | null
   ) {
     super();
   }

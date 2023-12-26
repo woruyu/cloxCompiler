@@ -52,7 +52,6 @@ export class Binary extends Expr {
 export class Call extends Expr {
   constructor(
     public callee: Expr,
-    public paren: Token,
     public args: Expr[]
   ) {
     super();
@@ -113,9 +112,7 @@ export class Unary extends Expr {
 }
 
 export class Variable extends Expr {
-  constructor(
-    public name: Token,
-  ) {
+  constructor(public name: Token) {
     super();
   }
 
@@ -128,7 +125,7 @@ export class Logical extends Expr {
   constructor(
     public left: Expr,
     public operator: Token,
-    public right: Expr,
+    public right: Expr
   ) {
     super();
   }
@@ -137,4 +134,3 @@ export class Logical extends Expr {
     return visitor.visitLogicalExpr(this);
   }
 }
-

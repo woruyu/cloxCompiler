@@ -1,46 +1,176 @@
 [
   {
-    "expression": {
-      "left": {
-        "left": {
-          "value": null
-        },
-        "operator": {
-          "pos": {
-            "line": 3,
-            "column": 13
-          },
-          "tokenName": "AND",
-          "type": 19
-        },
-        "right": {
-          "value": 5
-        }
+    "name": {
+      "pos": {
+        "line": 1,
+        "column": 12
       },
-      "operator": {
+      "text": "fib",
+      "tokenName": "Identifier",
+      "type": 37
+    },
+    "params": [
+      {
         "pos": {
-          "line": 3,
-          "column": 18
+          "line": 1,
+          "column": 14
         },
-        "tokenName": "OR",
-        "type": 27
-      },
-      "right": {
-        "left": {
-          "value": "\"no\""
-        },
-        "operator": {
-          "pos": {
-            "line": 3,
-            "column": 27
+        "text": "n",
+        "tokenName": "Identifier",
+        "type": 37
+      }
+    ],
+    "body": [
+      {
+        "condition": {
+          "left": {
+            "name": {
+              "pos": {
+                "line": 2,
+                "column": 7
+              },
+              "text": "n",
+              "tokenName": "Identifier",
+              "type": 37
+            }
           },
-          "tokenName": "AND",
-          "type": 19
+          "operator": {
+            "pos": {
+              "line": 2,
+              "column": 10
+            },
+            "tokenName": "LESS_EQUAL",
+            "type": 18
+          },
+          "right": {
+            "value": 1
+          }
         },
-        "right": {
-          "value": null
+        "thenBranch": {
+          "value": {
+            "name": {
+              "pos": {
+                "line": 2,
+                "column": 22
+              },
+              "text": "n",
+              "tokenName": "Identifier",
+              "type": 37
+            }
+          }
+        },
+        "elseBranch": null
+      },
+      {
+        "value": {
+          "left": {
+            "callee": {
+              "name": {
+                "pos": {
+                  "line": 3,
+                  "column": 12
+                },
+                "text": "fib",
+                "tokenName": "Identifier",
+                "type": 37
+              }
+            },
+            "args": [
+              {
+                "left": {
+                  "name": {
+                    "pos": {
+                      "line": 3,
+                      "column": 14
+                    },
+                    "text": "n",
+                    "tokenName": "Identifier",
+                    "type": 37
+                  }
+                },
+                "operator": {
+                  "pos": {
+                    "line": 3,
+                    "column": 16
+                  },
+                  "tokenName": "MINUS",
+                  "type": 6
+                },
+                "right": {
+                  "value": 2
+                }
+              }
+            ]
+          },
+          "operator": {
+            "pos": {
+              "line": 3,
+              "column": 21
+            },
+            "tokenName": "PLUS",
+            "type": 7
+          },
+          "right": {
+            "callee": {
+              "name": {
+                "pos": {
+                  "line": 3,
+                  "column": 25
+                },
+                "text": "fib",
+                "tokenName": "Identifier",
+                "type": 37
+              }
+            },
+            "args": [
+              {
+                "left": {
+                  "name": {
+                    "pos": {
+                      "line": 3,
+                      "column": 27
+                    },
+                    "text": "n",
+                    "tokenName": "Identifier",
+                    "type": 37
+                  }
+                },
+                "operator": {
+                  "pos": {
+                    "line": 3,
+                    "column": 29
+                  },
+                  "tokenName": "MINUS",
+                  "type": 6
+                },
+                "right": {
+                  "value": 1
+                }
+              }
+            ]
+          }
         }
       }
+    ]
+  },
+  {
+    "expression": {
+      "callee": {
+        "name": {
+          "pos": {
+            "line": 6,
+            "column": 9
+          },
+          "text": "fib",
+          "tokenName": "Identifier",
+          "type": 37
+        }
+      },
+      "args": [
+        {
+          "value": 2
+        }
+      ]
     }
   }
 ]
