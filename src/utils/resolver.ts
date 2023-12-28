@@ -1,3 +1,4 @@
+import assert from "node:assert";
 import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Unary, Variable, Visitor } from "../element/expr";
 import {
   Block,
@@ -13,38 +14,93 @@ import {
   While,
   stmVisitor,
 } from "../element/stament";
-import { Value } from "../types";
+import { Token, Value } from "../types";
 import { Interpreter } from "./interpreter";
+
+enum FunctionType {
+  NONE,
+  FUNCTION,
+}
+
+enum VarStatus {
+  declared,
+  initialized,
+  used,
+}
 
 export class Resolver implements Visitor<Value>, stmVisitor<void> {
   private interpreter: Interpreter;
-  private scopes: Map<string, boolean>[] = [];
+  private scopes: Map<string, VarStatus>[] = [];
+  private currentFunction = FunctionType.NONE;
 
   constructor(interpreter: Interpreter) {
     this.interpreter = interpreter;
   }
 
-  resolve(statements: Stmt[] | Expr) {
+  resolveStatements(statements: Stmt[]) {
     for (const stm of statements) {
-      this.resolveStmt(stm);
+      stm.accept(this);
     }
   }
 
-  private resolveStmt(stmt: Stmt): void {
-    stmt.accept(this);
-  }
-
   beginScope() {
-    this.scopes.push(new Map<string, boolean>());
+    this.scopes.push(new Map<string, VarStatus>());
   }
 
   endScope() {
-    this.scopes.pop();
+    const scope = this.scopes.pop();
+    if (scope) {
+      for (const [key, value] of scope) {
+        if (value !== VarStatus.used) {
+          throw new Error(`Varible ${key} nerver used.`);
+        }
+      }
+    }
+  }
+
+  declare(name: Token) {
+    const scope = this.scopes.at(-1);
+    if (scope === undefined) return;
+
+    if (scope.has(name.text!)) {
+      throw new Error("Already a variable with this name in this scope.");
+    }
+
+    scope.set(name.text!, VarStatus.declared);
+  }
+
+  define(name: Token) {
+    const scope = this.scopes.at(-1);
+    if (scope === undefined) return;
+    scope.set(name.text!, VarStatus.initialized);
+  }
+
+  resolveLocal(expr: Expr, name: Token): void {
+    for (let i = this.scopes.length - 1; i >= 0; i--) {
+      if (this.scopes[i].has(name.text!)) {
+        this.scopes[i].set(name.text!, VarStatus.used);
+        this.interpreter.resolve(expr, this.scopes.length - 1 - i);
+        return;
+      }
+    }
+  }
+
+  resolveFunction(func: Function, type: FunctionType) {
+    const enclosingFunction = this.currentFunction;
+    this.currentFunction = type;
+    this.beginScope();
+    for (const param of func.params) {
+      this.declare(param);
+      this.define(param);
+    }
+    this.resolveStatements(func.body);
+    this.endScope();
+    this.currentFunction = enclosingFunction;
   }
 
   visitBlockStmt(stmt: Block): void {
     this.beginScope();
-    this.resolve(stmt.statements);
+    this.resolveStatements(stmt.statements);
     this.endScope();
   }
 
@@ -52,58 +108,127 @@ export class Resolver implements Visitor<Value>, stmVisitor<void> {
     throw new Error("Method not implemented.");
   }
   visitExpressionStmt(stmt: Expression): void {
-    throw new Error("Method not implemented.");
+    stmt.expression.accept(this);
   }
   visitFunctionStmt(stmt: Function): void {
-    throw new Error("Method not implemented.");
+    this.declare(stmt.name);
+    this.define(stmt.name);
+
+    this.resolveFunction(stmt, FunctionType.FUNCTION);
   }
   visitIfStmt(stmt: If): void {
-    throw new Error("Method not implemented.");
+    stmt.condition.accept(this);
+    stmt.thenBranch.accept(this);
+    if (stmt.elseBranch != null) {
+      stmt.elseBranch.accept(this);
+    }
   }
   visitPrintStmt(stmt: Print): void {
-    throw new Error("Method not implemented.");
+    stmt.expression.accept(this);
   }
   visitReturnStmt(stmt: Return): void {
-    throw new Error("Method not implemented.");
+    if (this.currentFunction == FunctionType.NONE) {
+      throw new Error("Can't return from top-level code.");
+    }
+
+    if (stmt.value !== null) {
+      stmt.value.accept(this);
+    }
   }
   visitVarStmt(stmt: Var): void {
     this.declare(stmt.name);
     if (stmt.initializer != null) {
-      this.resolve(stmt.initializer);
+      stmt.initializer.accept(this);
     }
     this.define(stmt.name);
   }
   visitWhileStmt(stmt: While): void {
-    throw new Error("Method not implemented.");
+    stmt.condition.accept(this);
+    stmt.body.accept(this);
   }
   visitForStmt(stmt: For): void {
-    throw new Error("Method not implemented.");
+    if (stmt.initializer) {
+      if (stmt.initializer instanceof Stmt) {
+        stmt.initializer.accept(this);
+      } else {
+        stmt.initializer.accept(this);
+      }
+    }
+
+    if (stmt.condition) {
+      if (stmt.condition instanceof Stmt) {
+        stmt.condition.accept(this);
+      } else {
+        stmt.condition.accept(this);
+      }
+    }
+
+    if (stmt.increment) {
+      if (stmt.increment instanceof Stmt) {
+        stmt.increment.accept(this);
+      } else {
+        stmt.increment.accept(this);
+      }
+    }
+
+    stmt.body.accept(this);
   }
   visitAssignExpr(expr: Assign): Value {
-    throw new Error("Method not implemented.");
+    expr.value.accept(this);
+    this.resolveLocal(expr, expr.name);
+
+    return null;
   }
   visitBinaryExpr(expr: Binary): Value {
-    throw new Error("Method not implemented.");
+    expr.left.accept(this);
+    expr.right.accept(this);
+
+    return null;
   }
   visitCallExpr(expr: Call): Value {
-    throw new Error("Method not implemented.");
+    expr.callee.accept(this);
+    assert(expr.callee instanceof Variable);
+
+    for (const arg of expr.args) {
+      arg.accept(this);
+    }
+
+    const scope = this.scopes.at(-1);
+    if (scope !== undefined) {
+      const name = expr.callee.name.text!;
+      if (scope.has(name)) {
+        scope.set(name, VarStatus.used);
+      } else {
+        throw new Error(`unstatement function ${name}`);
+      }
+    }
+    return null;
   }
   visitGetExpr(expr: Get): Value {
     throw new Error("Method not implemented.");
   }
   visitGroupingExpr(expr: Grouping): Value {
-    throw new Error("Method not implemented.");
+    expr.expression.accept(this);
+    return null;
   }
   visitLiteralExpr(expr: Literal): Value {
-    throw new Error("Method not implemented.");
+    return expr.value;
   }
   visitLogicalExpr(expr: Logical): Value {
-    throw new Error("Method not implemented.");
+    expr.left.accept(this);
+    expr.right.accept(this);
+    return null;
   }
   visitUnaryExpr(expr: Unary): Value {
-    throw new Error("Method not implemented.");
+    expr.right.accept(this);
+    return null;
   }
   visitVariableExpr(expr: Variable): Value {
-    throw new Error("Method not implemented.");
+    const scope = this.scopes.at(-1);
+    if (scope !== undefined && scope.get(expr.name.text!) === VarStatus.declared) {
+      throw new Error("Can't read local variable without initializer.");
+    }
+    this.resolveLocal(expr, expr.name);
+    return null;
   }
 }

@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Unary, Variable, Visitor } from "../element/expr";
-import { ReturnException, TokenName, Value } from "../types";
+import { ReturnException, Token, TokenName, Value } from "../types";
 import {
   Block,
   Class,
@@ -16,18 +16,19 @@ import {
   stmVisitor,
 } from "../element/stament";
 import { Environment } from "./environment";
-import { LoxCallable, LoxFunction } from "../element/LoxFunction";
+import { LoxCallable, LoxFunction } from "../element/loxFunction";
 
 export class Interpreter implements Visitor<Value>, stmVisitor<void> {
   public globals = new Environment();
   public environment = this.globals;
+  public locals = new Map<Expr, number>();
 
   constructor() {
     const clock = new (class extends LoxCallable {
       arity() {
         return 0;
       }
-      call(interpreter: Interpreter, args: Value[]) {
+      call(_: Interpreter, __: Value[]) {
         return Date.now() / 1000;
       }
       toString() {
@@ -35,6 +36,15 @@ export class Interpreter implements Visitor<Value>, stmVisitor<void> {
       }
     })();
     this.globals.define("clock", clock);
+  }
+
+  resolve(expr: Expr, depth: number) {
+    this.locals.set(expr, depth);
+  }
+
+  lookUpVariable(name: Token, expr: Expr) {
+    const distance = this.locals.get(expr);
+    return distance == null ? this.globals.get(name) : this.environment.getAt(distance, name.text!);
   }
 
   visitForStmt(stmt: For): void {
@@ -72,7 +82,7 @@ export class Interpreter implements Visitor<Value>, stmVisitor<void> {
     throw new Error("Method not implemented.");
   }
   visitExpressionStmt(stmt: Expression): void {
-    const value = stmt.expression.accept(this);
+    stmt.expression.accept(this);
   }
   visitFunctionStmt(stmt: Function): void {
     const func = new LoxFunction(stmt, this.environment);
@@ -105,12 +115,18 @@ export class Interpreter implements Visitor<Value>, stmVisitor<void> {
     }
   }
   visitVariableExpr(expr: Variable): Value {
-    return this.environment.get(expr.name);
+    return this.lookUpVariable(expr.name, expr);
   }
 
   visitAssignExpr(expr: Assign): Value {
     const value = expr.value.accept(this);
-    this.environment.assign(expr.name, value);
+
+    const distance = this.locals.get(expr);
+    if (distance == null) {
+      this.globals.assign(expr.name, value);
+    } else {
+      this.environment.assignAt(distance, expr.name, value);
+    }
     return value;
   }
   visitCallExpr(expr: Call): Value {

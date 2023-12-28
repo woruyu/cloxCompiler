@@ -175,7 +175,9 @@ export function lexAll(s: string) {
         tokens.push({ pos: lexer.pos(), tokenName: TokenName[type], type: lexer.token() });
         return tokens;
       }
-      case TokenName.NOTE:
+      case TokenName.NOTE: {
+        break;
+      }
       case TokenName.StringLiteral:
       case TokenName.Identifier:
       case TokenName.NumericLiteral: {

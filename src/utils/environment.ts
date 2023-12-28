@@ -9,10 +9,10 @@ export class Environment {
     this.enclosing = enclosing;
   }
 
-  get(name: Token): any {
+  get(name: Token): Value {
     assert(name.text !== undefined);
     if (this.table.has(name.text)) {
-      return this.table.get(name.text);
+      return this.table.get(name.text)!;
     }
 
     if (this.enclosing !== null) {
@@ -53,11 +53,11 @@ export class Environment {
     return environment;
   }
 
-  getAt(distance: number, name: string): any {
-    return this.ancestor(distance).table.get(name);
+  getAt(distance: number, name: string): Value {
+    return this.ancestor(distance).table.get(name)!;
   }
 
-  assignAt(distance: number, name: Token, value: any): void {
+  assignAt(distance: number, name: Token, value: Value): void {
     assert(name.text !== undefined);
     this.ancestor(distance).table.set(name.text, value);
   }

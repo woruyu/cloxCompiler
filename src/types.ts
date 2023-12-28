@@ -1,4 +1,4 @@
-import { LoxCallable, LoxFunction } from "./element/LoxFunction";
+import { LoxCallable, LoxFunction } from "./element/loxFunction";
 
 export enum TokenName {
   // Single-character tokens.

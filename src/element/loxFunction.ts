@@ -2,7 +2,6 @@ import { ReturnException, Value } from "../types";
 import { Environment } from "../utils/environment";
 import { Interpreter } from "../utils/interpreter";
 import { Function } from "./stament";
-import assert from "node:assert";
 
 export abstract class LoxCallable {
   abstract arity(): number;

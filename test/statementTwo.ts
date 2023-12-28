@@ -1,4 +1,5 @@
-var a = 1;
+{
+  var a;
 if (a == 1){
   a = 2;
 }else{
@@ -6,3 +7,5 @@ if (a == 1){
 }
 
 print a;
+}
+

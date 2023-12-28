@@ -1,10 +1,10 @@
 var a = "global";
 {
-  function showA() {
-    console.log(a);
-  }
-
-  showA();
   var a = "block";
+  var c;
+  function showA() {
+    print a;
+  }
+  showA();
   showA();
 }
