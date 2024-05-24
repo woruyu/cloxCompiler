@@ -1,6 +1,5 @@
 var a = "global";
 {
-  Function
   function showA() {
     console.log(a);
   }

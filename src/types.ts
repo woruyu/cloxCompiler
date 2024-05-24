@@ -1,4 +1,6 @@
+import { LoxClass } from "./element/loxClass";
 import { LoxCallable, LoxFunction } from "./element/loxFunction";
+import { LoxInstance } from "./element/loxInstance";
 
 export enum TokenName {
   // Single-character tokens.
@@ -65,7 +67,7 @@ export interface Token {
   text?: string;
 }
 
-export type Value = number | string | boolean | null | LoxCallable;
+export type Value = number | string | boolean | null | LoxCallable | LoxInstance;
 
 export class ReturnException {
   constructor(public value: Value) {}

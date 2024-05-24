@@ -1,8 +1,8 @@
 import assert from "node:assert";
-import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Unary, Variable, Visitor } from "../element/expr";
+import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, SET, This, Unary, Variable, Visitor } from "../element/expr";
 import {
   Block,
-  Class,
+  CLASS,
   Expression,
   For,
   Function,
@@ -20,6 +20,12 @@ import { Interpreter } from "./interpreter";
 enum FunctionType {
   NONE,
   FUNCTION,
+  METHOD
+}
+
+enum ClassType {
+  NONE,
+  CLASS
 }
 
 enum VarStatus {
@@ -32,9 +38,19 @@ export class Resolver implements Visitor<Value>, stmVisitor<void> {
   private interpreter: Interpreter;
   private scopes: Map<string, VarStatus>[] = [];
   private currentFunction = FunctionType.NONE;
+  private currentClass = ClassType.NONE;
 
   constructor(interpreter: Interpreter) {
     this.interpreter = interpreter;
+  }
+  visitThisExpr(expr: This): Value {
+    this.resolveLocal(expr, expr.keyword);
+    return null;
+  }
+  visitSetExpr(expr: SET): Value {
+    expr.value.accept(this);
+    expr.object.accept(this);
+    return null;
   }
 
   resolveStatements(statements: Stmt[]) {
@@ -86,6 +102,8 @@ export class Resolver implements Visitor<Value>, stmVisitor<void> {
   }
 
   resolveFunction(func: Function, type: FunctionType) {
+    this.scopes.at(-1)?.set(func.name.text!,VarStatus.initialized);
+
     const enclosingFunction = this.currentFunction;
     this.currentFunction = type;
     this.beginScope();
@@ -104,8 +122,22 @@ export class Resolver implements Visitor<Value>, stmVisitor<void> {
     this.endScope();
   }
 
-  visitClassStmt(stmt: Class): void {
-    throw new Error("Method not implemented.");
+  visitClassStmt(stmt: CLASS): void {
+    const enclosingClass = this.currentClass;
+    this.currentClass = ClassType.CLASS;
+    this.declare(stmt.name);
+    this.define(stmt.name);
+
+    this.beginScope();
+    this.scopes.at(-1)?.set("this", VarStatus.used);
+
+    for(const method of stmt.methods){
+      this.resolveFunction(method,FunctionType.METHOD)
+    }
+
+    this.endScope();
+
+    this.currentClass = enclosingClass;
   }
   visitExpressionStmt(stmt: Expression): void {
     stmt.expression.accept(this);
@@ -187,25 +219,17 @@ export class Resolver implements Visitor<Value>, stmVisitor<void> {
   }
   visitCallExpr(expr: Call): Value {
     expr.callee.accept(this);
-    assert(expr.callee instanceof Variable);
+    assert(expr.callee instanceof Variable || expr.callee instanceof Get);
 
     for (const arg of expr.args) {
       arg.accept(this);
     }
 
-    const scope = this.scopes.at(-1);
-    if (scope !== undefined) {
-      const name = expr.callee.name.text!;
-      if (scope.has(name)) {
-        scope.set(name, VarStatus.used);
-      } else {
-        throw new Error(`unstatement function ${name}`);
-      }
-    }
     return null;
   }
   visitGetExpr(expr: Get): Value {
-    throw new Error("Method not implemented.");
+    expr.object.accept(this);
+    return null;
   }
   visitGroupingExpr(expr: Grouping): Value {
     expr.expression.accept(this);

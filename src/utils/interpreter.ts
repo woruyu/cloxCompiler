@@ -1,9 +1,9 @@
 import assert from "node:assert";
-import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Unary, Variable, Visitor } from "../element/expr";
+import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, SET, This, Unary, Variable, Visitor } from "../element/expr";
 import { ReturnException, Token, TokenName, Value } from "../types";
 import {
   Block,
-  Class,
+  CLASS,
   Expression,
   For,
   Function,
@@ -17,6 +17,8 @@ import {
 } from "../element/stament";
 import { Environment } from "./environment";
 import { LoxCallable, LoxFunction } from "../element/loxFunction";
+import { LoxClass } from "../element/loxClass";
+import { LoxInstance } from "../element/loxInstance";
 
 export class Interpreter implements Visitor<Value>, stmVisitor<void> {
   public globals = new Environment();
@@ -36,6 +38,19 @@ export class Interpreter implements Visitor<Value>, stmVisitor<void> {
       }
     })();
     this.globals.define("clock", clock);
+  }
+  visitThisExpr(expr: This): Value {
+    return this.lookUpVariable(expr.keyword,expr);
+  }
+  visitSetExpr(expr: SET): Value {
+    const obj = expr.object.accept(this);
+    if(!(obj instanceof LoxInstance)){
+      throw new Error(`${expr.name.text} isn't a instances, can't have fields.`);
+    }
+    const value = expr.value.accept(this);
+
+    obj.set(expr.name,value);
+    return value;
   }
 
   resolve(expr: Expr, depth: number) {
@@ -78,8 +93,17 @@ export class Interpreter implements Visitor<Value>, stmVisitor<void> {
     }
     this.environment = this.environment.enclosing!;
   }
-  visitClassStmt(stmt: Class): void {
-    throw new Error("Method not implemented.");
+  visitClassStmt(stmt: CLASS): void {
+    this.environment.define(stmt.name.text!,null);
+    const methods = new Map<string,LoxFunction>();
+
+    for(const fun of stmt.methods){
+      const method = new LoxFunction(fun,this.environment);
+      methods.set(fun.name.text!,method);
+    }
+
+    const klass = new LoxClass(stmt.name.text!,methods);
+    this.environment.assign(stmt.name,klass);
   }
   visitExpressionStmt(stmt: Expression): void {
     stmt.expression.accept(this);
@@ -97,7 +121,7 @@ export class Interpreter implements Visitor<Value>, stmVisitor<void> {
   }
   visitPrintStmt(stmt: Print): void {
     const value = stmt.expression.accept(this);
-    console.log(value);
+    console.log(value?.toString());
   }
   visitReturnStmt(stmt: Return): void {
     let value = null;
@@ -144,7 +168,12 @@ export class Interpreter implements Visitor<Value>, stmVisitor<void> {
     return loxFunc.call(this, args);
   }
   visitGetExpr(expr: Get): Value {
-    throw new Error("Method not implemented.");
+    const obj = expr.object.accept(this);
+    if(obj instanceof LoxInstance){
+      return obj.get(expr.name);
+    }else{
+      throw new Error(`${expr.name.text}, Only instances have properties.`);
+    }
   }
   visitBinaryExpr(expr: Binary): Value {
     const left = expr.left.accept(this);

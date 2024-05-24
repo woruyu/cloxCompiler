@@ -1,9 +1,9 @@
 import assert from "node:assert";
-import { Assign, Binary, Call, Expr, Grouping, Literal, Logical, Unary, Variable } from "./element/expr";
+import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, SET, This, Unary, Variable } from "./element/expr";
 import { lexAll } from "./lex";
 import { Token, TokenName } from "./types";
 import { exit } from "node:process";
-import { Block, Expression, For, If, Print, Stmt, Var, While, Function, Return } from "./element/stament";
+import { Block, Expression, For, If, Print, Stmt, Var, While, Function, Return, CLASS } from "./element/stament";
 
 export class Parser {
   private tokens = new Array<Token>();
@@ -64,8 +64,23 @@ export class Parser {
     if (this.matchToken(TokenName.FOR)) return this.forStatement();
     if (this.matchToken(TokenName.FUNCTION)) return this.funcStatement();
     if (this.matchToken(TokenName.RETURN)) return this.returnStatement();
+    if (this.matchToken(TokenName.CLASS)) return this.classStatement();
 
     return this.expressionStatement();
+  }
+
+  classStatement() {
+    const name = this.consume(TokenName.Identifier, "Expect class name.");
+    this.consume(TokenName.LEFT_BRACE, "Expect '{' before class body.");
+
+    const methods = new Array<Function>();
+    while (!this.check(TokenName.RIGHT_BRACE) && !this.isAtEnd()) {
+      methods.push(this.funcStatement());
+    }
+
+    this.consume(TokenName.RIGHT_BRACE, "Expect '}' after class body.");
+
+    return new CLASS(name, methods);
   }
 
   returnStatement() {
@@ -224,6 +239,10 @@ export class Parser {
 
       if (leftExpr instanceof Variable) {
         return new Assign(leftExpr.name, value);
+      } else if(leftExpr instanceof Get){
+        return new SET(leftExpr.object, leftExpr.name, value);
+      }else if(leftExpr instanceof This){
+        return new Assign(leftExpr.keyword, value);
       }
     }
 
@@ -322,6 +341,9 @@ export class Parser {
         }
         this.consume(TokenName.RIGHT_PAREN, "Expect after call args ')'");
         expr = new Call(expr, args);
+      } else if (this.matchToken(TokenName.DOT)) {
+        const name = this.consume(TokenName.Identifier, "Expect property name after '.'.");
+        expr = new Get(expr, name);
       } else {
         break;
       }
@@ -351,6 +373,8 @@ export class Parser {
       this.consume(TokenName.RIGHT_PAREN, "Expect ')' after expression.");
       return new Grouping(expr);
     }
+
+    if (this.matchToken(TokenName.THIS)) return new This(this.previous());
 
     throw new ParseError(this.peek(), "is not a Literal");
   }

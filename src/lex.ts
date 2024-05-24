@@ -184,6 +184,10 @@ export function lexAll(s: string) {
         tokens.push({ pos: lexer.pos(), text: lexer.text(), tokenName: TokenName[type], type: lexer.token() });
         break;
       }
+      case TokenName.THIS: {
+        tokens.push({ pos: lexer.pos(), text: lexer.text(), tokenName: TokenName[type], type: lexer.token() });
+        break;
+      }
       default: {
         tokens.push({ pos: lexer.pos(), tokenName: TokenName[type], type: lexer.token() });
         break;

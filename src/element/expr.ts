@@ -12,9 +12,9 @@ export interface Visitor<R> {
   visitGroupingExpr(expr: Grouping): R;
   visitLiteralExpr(expr: Literal): R;
   visitLogicalExpr(expr: Logical): R;
-  // visitSetExpr(expr: Set): R;
+  visitSetExpr(expr: SET ): R;
   // visitSuperExpr(expr: Super): R;
-  // visitThisExpr(expr: This): R;
+  visitThisExpr(expr: This): R;
   visitUnaryExpr(expr: Unary): R;
   visitVariableExpr(expr: Variable): R;
 }
@@ -86,6 +86,8 @@ export class Grouping extends Expr {
   }
 }
 
+Function
+
 export class Literal extends Expr {
   constructor(public value: number | string | boolean | null) {
     super();
@@ -132,5 +134,26 @@ export class Logical extends Expr {
 
   accept<R>(visitor: Visitor<R>): R {
     return visitor.visitLogicalExpr(this);
+  }
+}
+
+export class SET extends Expr {
+  constructor(public object:Expr,public name:Token, public value:Expr) {
+    super();
+  }
+
+  accept<R>(visitor: Visitor<R>): R {
+    return visitor.visitSetExpr(this);
+  }
+}
+
+export class This extends Expr {
+  constructor(public keyword:Token) {
+    super();
+  }
+
+
+  accept<R>(visitor: Visitor<R>): R {
+    return visitor.visitThisExpr(this);
   }
 }

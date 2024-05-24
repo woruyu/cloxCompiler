@@ -7,7 +7,7 @@ export abstract class Stmt {
 
 export interface stmVisitor<R> {
   visitBlockStmt(stmt: Block): R;
-  visitClassStmt(stmt: Class): R;
+  visitClassStmt(stmt: CLASS): R;
   visitExpressionStmt(stmt: Expression): R;
   visitFunctionStmt(stmt: Function): R;
   visitIfStmt(stmt: If): R;
@@ -31,10 +31,9 @@ export class Block extends Stmt {
   }
 }
 
-export class Class extends Stmt {
+export class CLASS extends Stmt {
   constructor(
     public name: Token,
-    public superclass: Variable | null,
     public methods: Function[]
   ) {
     super();

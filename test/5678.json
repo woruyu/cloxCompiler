@@ -1,46 +1,272 @@
 [
   {
-    "expression": {
-      "left": {
-        "left": {
-          "left": {
-            "value": null
-          },
-          "operator": {
-            "pos": {
-              "line": 3,
-              "column": 13
-            },
-            "tokenName": "AND",
-            "type": 19
-          },
-          "right": {
-            "value": 5
-          }
-        },
-        "operator": {
+    "name": {
+      "pos": {
+        "line": 1,
+        "column": 10
+      },
+      "text": "Cake",
+      "tokenName": "Identifier",
+      "type": 37
+    },
+    "methods": [
+      {
+        "name": {
           "pos": {
-            "line": 3,
-            "column": 18
+            "line": 2,
+            "column": 7
           },
-          "tokenName": "OR",
-          "type": 27
+          "text": "taste",
+          "tokenName": "Identifier",
+          "type": 37
         },
-        "right": {
-          "value": "\"no\""
+        "params": [],
+        "body": [
+          {
+            "name": {
+              "pos": {
+                "line": 3,
+                "column": 17
+              },
+              "text": "adjective",
+              "tokenName": "Identifier",
+              "type": 37
+            },
+            "initializer": {
+              "value": "delicious"
+            }
+          },
+          {
+            "expression": {
+              "left": {
+                "left": {
+                  "left": {
+                    "left": {
+                      "value": "The "
+                    },
+                    "operator": {
+                      "pos": {
+                        "line": 4,
+                        "column": 18
+                      },
+                      "tokenName": "PLUS",
+                      "type": 7
+                    },
+                    "right": {
+                      "object": {
+                        "keyword": {
+                          "pos": {
+                            "line": 4,
+                            "column": 23
+                          },
+                          "text": "this",
+                          "tokenName": "THIS",
+                          "type": 31
+                        }
+                      },
+                      "name": {
+                        "pos": {
+                          "line": 4,
+                          "column": 30
+                        },
+                        "text": "flavor",
+                        "tokenName": "Identifier",
+                        "type": 37
+                      }
+                    }
+                  },
+                  "operator": {
+                    "pos": {
+                      "line": 4,
+                      "column": 32
+                    },
+                    "tokenName": "PLUS",
+                    "type": 7
+                  },
+                  "right": {
+                    "value": " cake is "
+                  }
+                },
+                "operator": {
+                  "pos": {
+                    "line": 4,
+                    "column": 46
+                  },
+                  "tokenName": "PLUS",
+                  "type": 7
+                },
+                "right": {
+                  "name": {
+                    "pos": {
+                      "line": 4,
+                      "column": 56
+                    },
+                    "text": "adjective",
+                    "tokenName": "Identifier",
+                    "type": 37
+                  }
+                }
+              },
+              "operator": {
+                "pos": {
+                  "line": 4,
+                  "column": 58
+                },
+                "tokenName": "PLUS",
+                "type": 7
+              },
+              "right": {
+                "value": "!"
+              }
+            }
+          },
+          {
+            "expression": {
+              "keyword": {
+                "pos": {
+                  "line": 5,
+                  "column": 14
+                },
+                "text": "this",
+                "tokenName": "THIS",
+                "type": 31
+              }
+            }
+          },
+          {
+            "expression": {
+              "keyword": {
+                "pos": {
+                  "line": 6,
+                  "column": 8
+                },
+                "text": "this",
+                "tokenName": "THIS",
+                "type": 31
+              }
+            }
+          },
+          {
+            "expression": {
+              "keyword": {
+                "pos": {
+                  "line": 7,
+                  "column": 14
+                },
+                "text": "this",
+                "tokenName": "THIS",
+                "type": 31
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": {
+      "pos": {
+        "line": 11,
+        "column": 8
+      },
+      "text": "cake",
+      "tokenName": "Identifier",
+      "type": 37
+    },
+    "initializer": {
+      "callee": {
+        "name": {
+          "pos": {
+            "line": 11,
+            "column": 15
+          },
+          "text": "Cake",
+          "tokenName": "Identifier",
+          "type": 37
         }
       },
-      "operator": {
-        "pos": {
-          "line": 3,
-          "column": 26
-        },
-        "tokenName": "OR",
-        "type": 27
+      "args": []
+    }
+  },
+  {
+    "expression": {
+      "object": {
+        "name": {
+          "pos": {
+            "line": 12,
+            "column": 4
+          },
+          "text": "cake",
+          "tokenName": "Identifier",
+          "type": 37
+        }
       },
-      "right": {
-        "value": null
+      "name": {
+        "pos": {
+          "line": 12,
+          "column": 11
+        },
+        "text": "flavor",
+        "tokenName": "Identifier",
+        "type": 37
+      },
+      "value": {
+        "value": "German chocolate"
       }
+    }
+  },
+  {
+    "expression": {
+      "callee": {
+        "object": {
+          "name": {
+            "pos": {
+              "line": 13,
+              "column": 4
+            },
+            "text": "cake",
+            "tokenName": "Identifier",
+            "type": 37
+          }
+        },
+        "name": {
+          "pos": {
+            "line": 13,
+            "column": 10
+          },
+          "text": "taste",
+          "tokenName": "Identifier",
+          "type": 37
+        }
+      },
+      "args": []
+    }
+  },
+  {
+    "expression": {
+      "callee": {
+        "object": {
+          "name": {
+            "pos": {
+              "line": 14,
+              "column": 4
+            },
+            "text": "cake",
+            "tokenName": "Identifier",
+            "type": 37
+          }
+        },
+        "name": {
+          "pos": {
+            "line": 14,
+            "column": 10
+          },
+          "text": "taste",
+          "tokenName": "Identifier",
+          "type": 37
+        }
+      },
+      "args": []
     }
   }
 ]

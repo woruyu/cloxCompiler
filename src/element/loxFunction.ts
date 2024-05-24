@@ -1,6 +1,7 @@
 import { ReturnException, Value } from "../types";
 import { Environment } from "../utils/environment";
 import { Interpreter } from "../utils/interpreter";
+import { LoxInstance } from "./loxInstance";
 import { Function } from "./stament";
 
 export abstract class LoxCallable {
@@ -14,17 +15,17 @@ export class LoxFunction extends LoxCallable {
 
   constructor(
     public declaration: Function,
-    public closure: Environment
+    public closure: Environment | null
   ) {
     super();
     // this.isInitializer = isInitializer;
   }
 
-  // bind(instance: LoxInstance): LoxFunction {
-  //   let environment = new Environment(this.closure);
-  //   environment.define("this", instance);
-  //   return new LoxFunction(this.declaration, environment, this.isInitializer);
-  // }
+  bind(instance: LoxInstance): LoxFunction {
+    let environment = new Environment(this.closure);
+    environment.define("this", instance);
+    return new LoxFunction(this.declaration, environment);
+  }
 
   override toString(): string {
     return `<fn ${this.declaration.name.text}>`;
@@ -54,25 +55,4 @@ export class LoxFunction extends LoxCallable {
     return null;
   }
 
-  // call(interpreter: Interpreter, args: Value[]): Value {
-  //   let environment = new Environment(this.closure);
-  //   for (let i = 0; i < this.declaration.params.length; i++) {
-  //     environment.define(this.declaration.params[i].text!, args[i]);
-  //   }
-
-  //   try {
-  //     interpreter.executeBlock(this.declaration.body, environment);
-  //   } catch (returnValue) {
-  //     if (returnValue instanceof Return) {
-  //       if (this.isInitializer) return this.closure.getAt(0, "this");
-  //       return returnValue.value;
-  //     } else {
-  //       // Rethrow if it's not a Return exception.
-  //       throw returnValue;
-  //     }
-  //   }
-
-  //   if (this.isInitializer) return this.closure.getAt(0, "this");
-  //   return null;
-  // }
 }
